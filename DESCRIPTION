@@ -1,0 +1,11 @@
+Package: BigStuff
+Type: Package
+Title: Tools for Working with Big data.tables
+Version: 0.1.1
+Date: 2015-10-01
+Author: Stefan Fritsch
+Maintainer: Stefan Fritsch <fritsch@stat-up.com>
+Description: Contains drop_in_place and rbind_in_place to remove rows from data.tables or combine two data.tables without creating whole copies.
+License: GPLv2
+LazyData: TRUE
+Imports: data.table
