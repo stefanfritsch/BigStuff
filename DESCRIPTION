@@ -6,7 +6,7 @@ Date: 2015-10-01
 Author: Stefan Fritsch
 Maintainer: Stefan Fritsch <fritsch@stat-up.com>
 Description: Contains drop_in_place and rbind_in_place to remove rows from data.tables or combine two data.tables without creating whole copies.
-License: GPL (>= 2)
+License: GPL (== 2)
 LazyData: TRUE
 Imports: data.table, magrittr
 Suggests: testthat, pryr
