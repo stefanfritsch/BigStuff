@@ -9,6 +9,7 @@
 #' returned invisibly for ease of use with magrittr and to be consistent with
 #' setDT and setDF.
 #'
+#' @import magrittr
 #' @export
 #' @examples
 #' DF <- data.frame(x=1:10)
@@ -22,6 +23,9 @@ setList <- function(.data)
     setdiff(class(.data),
             c("data.table", "data.frame"))
   )
+
+  c("sorted", ".internal.selfref", "index") %>%
+    setattr(.data, ., NULL)
 
   invisible(.data)
 }

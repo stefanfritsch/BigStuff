@@ -8,13 +8,12 @@
 #' @param .state The return value of an earlier get_dt_state call
 #'
 #' @import data.table
-#' @export
 #' @examples
 #' library(data.table)
 #' DT <- data.table(x=1:10, key="x")
 #'
-#' state <- get_dt_state(DT)
-#' set_dt_state(DT)
+#' state <- BigStuff:::get_dt_state(DT)
+#' BigStuff:::set_dt_state(DT, state)
 get_dt_state <- function(.data)
 {
   if(!is.list(.data))
@@ -38,7 +37,6 @@ get_dt_state <- function(.data)
 }
 
 #' @rdname get_dt_state
-#' @export
 set_dt_state <- function(.data, .state)
 {
   if(.state$class == "list")

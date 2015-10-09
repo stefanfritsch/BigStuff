@@ -53,7 +53,7 @@ drop_in_place <- function(.data, .n = NULL, .keep = NULL)
         .data[[col]] <- .data[[col]][-seq_len(.n)]
       }
 
-      set_dt_state(.data, state)
+      BigStuff:::set_dt_state(.data, state)
     }))
 
   invisible(.data)

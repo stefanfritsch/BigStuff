@@ -1,3 +1,4 @@
+#' @import magrittr
 exp_c <- function(...)
 {
   exps <- eval(substitute(alist(...)))
@@ -11,7 +12,7 @@ exp_c <- function(...)
   paste0(".(",names(exps),")", collapse=";") %>%
     paste0("{",.,"}") %>%
     c(~exps) %>%
-    make_call(quote(bquote), .) %>%
+    pryr::make_call(quote(bquote), .) %>%
     .$expr %>%
     eval
 }

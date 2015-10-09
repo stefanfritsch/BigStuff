@@ -48,30 +48,35 @@ rbind_in_place <- function(.X,
   # Preliminaries ##############################################################
   #*****************************************************************************
 
+  if(isTRUE(.keep.Y))
+    stop("Currently defunct. Sorry.")
 
   # Where should we join .X and .Y
   env <- parent.frame()
 
 
-  # Save current state and convert to list
+  # Save current state
   state.X <- get_dt_state(.X)
   state.Y <- get_dt_state(.Y)
-
-  setList(.X)
-  setList(.Y)
-
 
   # Compare columns present in .X and .Y
   if(isTRUE(.use.names))
   {
-    cols <- colnames(.X)
-    missing.cols <- setdiff(cols, colnames(.Y))
+    cols.X <- names(.X)
+    missing.cols <- setdiff(cols.X, names(.Y))
+    cols.X <- setdiff(cols.X, missing.cols)
+    cols.Y <- cols.X
   } else {
-    cols <- seq_along(.X)
-    missing.cols <- setdiff(cols, seq_along(.Y))
+    cols.X <- seq_along(.X)
+    old.names.Y <- names(.Y)
+    setnames(.Y, paste0("V", seq_along(.Y)))
+    cols.Y <- names(.Y)
+
+    missing.cols <- setdiff(cols.X, seq_along(.Y))
+    cols.X <- setdiff(cols.X, missing.cols)
   }
 
-  cols <- setdiff(cols, missing.cols)
+
 
 
   # Throw error if .Y is missing columns and fill = FALSE
@@ -83,15 +88,19 @@ rbind_in_place <- function(.X,
   # Combine .X and .Y ##########################################################
   #*****************************************************************************
 
+  setList(.X)
+  setList(.Y)
+
   #----------------------------------------------------------------------------#
   # Simply combine columns both in .X and .Y
   #----------------------------------------------------------------------------#
-  for(col in cols)
+  for(col in seq_along(cols.X))
   {
     eval(
       envir = env,
       substitute({
-        .X[[col]] <- c(.X[[col]], .Y[[col]])
+        .X[[cols.X[col]]] <- BigStuff:::combine_cols(.X[[cols.X[col]]],
+                                                     .Y[[cols.Y[col]]])
       })
     )
 
@@ -100,7 +109,7 @@ rbind_in_place <- function(.X,
       eval(
         envir = env,
         substitute({
-          .Y[[col]] <- NULL
+          .Y[[cols.Y[col]]] <- NULL
         })
       )
     }
@@ -109,8 +118,8 @@ rbind_in_place <- function(.X,
   #----------------------------------------------------------------------------#
   # Handle missing columns
   #----------------------------------------------------------------------------#
-  if(length(Y) > 0)
-    NROW.Y <- length(Y[[1]])
+  if(length(.Y) > 0)
+    NROW.Y <- length(.Y[[1]])
   else
     NROW.Y <- 0
 
@@ -119,8 +128,13 @@ rbind_in_place <- function(.X,
     eval(
       envir = env,
       substitute({
+        if(!is.factor(.X[[col]])) {
         .X[[col]] <- c(.X[[col]],
                        rep(NA_integer_, NROW.Y))
+        } else {
+          .X[[col]] <- factor(c(as.character(.X[[col]]),
+                         rep(NA_character_, NROW.Y)))
+        }
       })
     )
   }
@@ -131,7 +145,12 @@ rbind_in_place <- function(.X,
   #*****************************************************************************
 
   # restore state of .X
-  set_dt_state(.X, state.X)
+  eval(
+    envir = env,
+    substitute({
+      BigStuff:::set_dt_state(.X, state.X)
+    })
+  )
 
   # If .Y should be deleted do so, otherwise restore its state
   if(!isTRUE(.keep.Y))
@@ -143,7 +162,13 @@ rbind_in_place <- function(.X,
       })
     )
   } else {
-    set_dt_state(.Y, state.Y)
+    eval(
+      envir = env,
+      substitute({
+        setnames(.Y, old.names.Y)
+        BigStuff:::set_dt_state(.Y, state.Y)
+      })
+    )
   }
 
   invisible(.X)
